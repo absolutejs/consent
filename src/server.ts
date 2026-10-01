@@ -1,5 +1,13 @@
-import { mkdir, readdir, readFile, stat, writeFile } from 'node:fs/promises';
+import {
+	mkdir,
+	readdir,
+	readFile,
+	rename,
+	stat,
+	writeFile
+} from 'node:fs/promises';
 import { join } from 'node:path';
+import { pid } from 'node:process';
 import { setTimeout as sleep } from 'node:timers/promises';
 import { gunzipSync } from 'node:zlib';
 import {
@@ -339,7 +347,11 @@ export const createDbIpCountryResolver = ({
 		);
 		if (!response.ok) return false;
 		const path = join(cacheDir, name);
-		await writeFile(path, new Uint8Array(await response.arrayBuffer()));
+		// Write then rename so a second process sharing the cache never
+		// reads a half-written file.
+		const partial = `${path}.${pid}.partial`;
+		await writeFile(partial, new Uint8Array(await response.arrayBuffer()));
+		await rename(partial, path);
 		await load(path);
 
 		return true;

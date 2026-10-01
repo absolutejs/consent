@@ -5,6 +5,16 @@
 		{
 			"changes": [
 				{
+					"kind": "fixed",
+					"summary": "DB-IP downloads are written atomically so processes sharing a cache never read a partial file"
+				}
+			],
+			"date": "2026-10-01",
+			"version": "0.2.1"
+		},
+		{
+			"changes": [
+				{
 					"kind": "added",
 					"summary": "optOutCategories limits which categories default on in opt-out regions"
 				}
