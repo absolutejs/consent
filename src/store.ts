@@ -36,6 +36,11 @@ export type ConsentStoreOptions<Category extends string> = {
 	/** Categories a GPC signal turns off by default in opt-out regions.
 	 *  Defaults to every category. */
 	gpcCategories?: readonly Category[];
+	/** Categories that default on in opt-out regions. Others stay off until
+	 *  chosen everywhere (e.g. advertising, which several US states treat
+	 *  as "sharing" with its own disclosure rules). Defaults to every
+	 *  category. */
+	optOutCategories?: readonly Category[];
 	/** Reads a decision persisted by an earlier storage format. */
 	migrate?: (raw: unknown) => ConsentDecision<Category> | null;
 	now?: () => number;
@@ -74,6 +79,7 @@ export const createConsentStore = <Category extends string>({
 	gpcCategories = categories,
 	migrate,
 	now = Date.now,
+	optOutCategories = categories,
 	region,
 	storage = defaultStorage(),
 	storageKey = DEFAULT_STORAGE_KEY
@@ -147,6 +153,7 @@ export const createConsentStore = <Category extends string>({
 		for (const category of categories) {
 			choices[category] =
 				currentRegion.regime === 'opt-out' &&
+				optOutCategories.includes(category) &&
 				!(currentGpc && gpcCategories.includes(category));
 		}
 
@@ -172,6 +179,7 @@ export const createConsentStore = <Category extends string>({
 			needsNotice:
 				!decided &&
 				currentRegion.regime === 'opt-out' &&
+				optOutCategories.length > 0 &&
 				persisted.noticeAt === null,
 			needsPrompt: !decided && currentRegion.regime === 'opt-in',
 			region: currentRegion

@@ -6,6 +6,16 @@
 			"changes": [
 				{
 					"kind": "added",
+					"summary": "optOutCategories limits which categories default on in opt-out regions"
+				}
+			],
+			"date": "2026-10-01",
+			"version": "0.2.0"
+		},
+		{
+			"changes": [
+				{
+					"kind": "added",
 					"summary": "Region-aware consent store, GPC, and DB-IP country resolution"
 				}
 			],

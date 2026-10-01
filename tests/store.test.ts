@@ -69,6 +69,26 @@ describe('defaults by regime', () => {
 			marketing: false
 		});
 	});
+	test('only opt-out categories default on in opt-out regions', () => {
+		const store = createConsentStore({
+			categories,
+			optOutCategories: ['analytics'],
+			region: us,
+			storage: null
+		});
+		expect(store.getState()).toMatchObject({
+			choices: { analytics: true, marketing: false },
+			needsNotice: true,
+			needsPrompt: false
+		});
+		const eu2 = createConsentStore({
+			categories,
+			optOutCategories: ['analytics'],
+			region: eu,
+			storage: null
+		});
+		expect(eu2.getState().choices.analytics).toBe(false);
+	});
 	test('an explicit choice overrides GPC', () => {
 		const store = createConsentStore({
 			categories,
