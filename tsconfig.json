@@ -1,0 +1,29 @@
+{
+	"compilerOptions": {
+		"declaration": true,
+		"declarationDir": "dist",
+		"esModuleInterop": true,
+		"forceConsistentCasingInFileNames": true,
+		"lib": [
+			"DOM",
+			"DOM.Iterable",
+			"ESNext"
+		],
+		"module": "ESNext",
+		"moduleResolution": "bundler",
+		"noUncheckedIndexedAccess": true,
+		"outDir": "dist",
+		"skipLibCheck": true,
+		"strict": true,
+		"target": "ESNext"
+	},
+	"exclude": [
+		"node_modules",
+		"dist",
+		"src/**/*.test.ts"
+	],
+	"include": [
+		"src/**/*",
+		"changelog/**/*"
+	]
+}

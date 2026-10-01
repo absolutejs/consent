@@ -1,0 +1,72 @@
+{
+	"author": "Alex Kahn",
+	"bugs": {
+		"url": "https://github.com/absolutejs/consent/issues"
+	},
+	"description": "Region-aware tracking consent: opt-out where the law allows it, opt-in where it requires it, Global Privacy Control, and IP-to-country resolution.",
+	"devDependencies": {
+		"@absolutejs/changelog": "^0.6.0",
+		"@eslint/js": "9.26.0",
+		"@stylistic/eslint-plugin-ts": "4.2.0",
+		"@types/bun": "latest",
+		"eslint": "9.26.0",
+		"eslint-plugin-absolute": "0.0.3",
+		"eslint-plugin-import": "2.31.0",
+		"eslint-plugin-promise": "7.2.1",
+		"eslint-plugin-security": "3.0.1",
+		"globals": "^17.13.0",
+		"prettier": "3.5.3",
+		"typescript": "5.8.3",
+		"typescript-eslint": "8.32.0"
+	},
+	"exports": {
+		".": {
+			"default": "./dist/index.js",
+			"import": "./dist/index.js",
+			"types": "./dist/index.d.ts"
+		},
+		"./package.json": "./package.json",
+		"./server": {
+			"default": "./dist/server.js",
+			"import": "./dist/server.js",
+			"types": "./dist/server.d.ts"
+		}
+	},
+	"files": [
+		"CHANGELOG.md",
+		"LICENSE",
+		"README.md",
+		"changelog.json",
+		"dist"
+	],
+	"homepage": "https://github.com/absolutejs/consent",
+	"keywords": [
+		"ccpa",
+		"consent",
+		"cookies",
+		"gdpr",
+		"global-privacy-control",
+		"privacy"
+	],
+	"license": "BSL-1.1",
+	"main": "./dist/index.js",
+	"name": "@absolutejs/consent",
+	"publishConfig": {
+		"access": "public"
+	},
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/absolutejs/consent.git"
+	},
+	"scripts": {
+		"build": "rm -rf dist && bun build src/index.ts --outdir dist --root ./src --target=browser --format=esm && bun build src/server.ts --outdir dist --root ./src --target=node --format=esm && tsc --emitDeclarationOnly --project tsconfig.json",
+		"check:package": "absolute-changelog check",
+		"prepublishOnly": "bun run check:package",
+		"release": "bun run build && bun publish",
+		"test": "bun test",
+		"typecheck": "tsc --noEmit"
+	},
+	"type": "module",
+	"types": "./dist/index.d.ts",
+	"version": "0.1.0"
+}

@@ -1,0 +1,16 @@
+{
+	"contract": 1,
+	"name": "@absolutejs/consent",
+	"releases": [
+		{
+			"changes": [
+				{
+					"kind": "added",
+					"summary": "Region-aware consent store, GPC, and DB-IP country resolution"
+				}
+			],
+			"date": "2026-10-01",
+			"version": "0.1.0"
+		}
+	]
+}
