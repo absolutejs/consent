@@ -18,6 +18,7 @@ export { createConsentStore, readGpc, readTimeZone } from './store';
 export type {
 	ConsentChoices,
 	ConsentDecision,
+	ConsentProvenance,
 	ConsentState,
 	ConsentStorage,
 	ConsentStore,

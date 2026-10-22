@@ -95,3 +95,6 @@ the inverse policy: opt-out everywhere except those countries.
 ## License
 
 BSL 1.1 — see [LICENSE](./LICENSE).
+
+
+`ConsentState.provenance` records the original explicit action, resolved region and GPC signal. Pass it with remote decisions to preserve the origin across devices. Missing provenance means the historical origin is unknown; regional defaults do not create an explicit choice.

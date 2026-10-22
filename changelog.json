@@ -5,6 +5,22 @@
 		{
 			"changes": [
 				{
+					"kind": "added",
+					"summary": "Preserve explicit consent choice provenance across devices",
+					"symbols": [
+						"ConsentDecision",
+						"ConsentState",
+						"ConsentProvenance",
+						"createConsentStore"
+					]
+				}
+			],
+			"date": "2026-10-22",
+			"version": "0.2.2"
+		},
+		{
+			"changes": [
+				{
 					"kind": "fixed",
 					"summary": "DB-IP downloads are written atomically so processes sharing a cache never read a partial file"
 				}

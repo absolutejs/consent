@@ -9,10 +9,17 @@ export type ConsentStorage = {
 	setItem: (key: string, value: string) => void;
 };
 
+export type ConsentProvenance = {
+	source: 'accept-all' | 'reject-all' | 'custom';
+	region: RegionResolution;
+	gpc: boolean;
+};
+
 export type ConsentDecision<Category extends string> = {
 	choices: Partial<ConsentChoices<Category>>;
 	/** Epoch milliseconds; the newer of a local and a remote decision wins. */
 	decidedAt: number;
+	provenance?: ConsentProvenance;
 };
 
 export type ConsentState<Category extends string> = {
@@ -20,6 +27,8 @@ export type ConsentState<Category extends string> = {
 	/** True once the visitor (or their account) recorded an explicit choice. */
 	decided: boolean;
 	decidedAt: number | null;
+	/** Absent for historical choices whose origin was not recorded. */
+	provenance?: ConsentProvenance;
 	/** Browser Global Privacy Control signal. */
 	gpc: boolean;
 	/** Opt-out region, undecided: show a non-blocking notice with a way to
@@ -65,6 +74,23 @@ const DEFAULT_STORAGE_KEY = 'absolute-consent';
 const isRecord = (value: unknown): value is Record<string, unknown> =>
 	typeof value === 'object' && value !== null && !Array.isArray(value);
 
+const validProvenance = (value: unknown): value is ConsentProvenance => {
+	if (!isRecord(value) || !isRecord(value.region)) return false;
+	const { region } = value;
+
+	return (
+		(value.source === 'accept-all' ||
+			value.source === 'reject-all' ||
+			value.source === 'custom') &&
+		typeof value.gpc === 'boolean' &&
+		(region.country === null || typeof region.country === 'string') &&
+		(region.regime === 'opt-in' || region.regime === 'opt-out') &&
+		(region.source === 'country' ||
+			region.source === 'timezone' ||
+			region.source === 'unknown')
+	);
+};
+
 const defaultStorage = () => {
 	try {
 		return typeof localStorage === 'undefined' ? null : localStorage;
@@ -99,7 +125,10 @@ export const createConsentStore = <Category extends string>({
 		if (!isRecord(value.choices)) return null;
 		const decision: ConsentDecision<Category> = {
 			choices: pickChoices(value.choices),
-			decidedAt: value.decidedAt
+			decidedAt: value.decidedAt,
+			...(validProvenance(value.provenance)
+				? { provenance: value.provenance }
+				: {})
 		};
 
 		return decision;
@@ -182,6 +211,7 @@ export const createConsentStore = <Category extends string>({
 				optOutCategories.length > 0 &&
 				persisted.noticeAt === null,
 			needsPrompt: !decided && currentRegion.regime === 'opt-in',
+			provenance: persisted.decision?.provenance,
 			region: currentRegion
 		};
 
@@ -205,8 +235,21 @@ export const createConsentStore = <Category extends string>({
 		return choices;
 	};
 
+	const provenance = (
+		source: ConsentProvenance['source']
+	): ConsentProvenance => ({
+		gpc: currentGpc,
+		region: { ...currentRegion },
+		source
+	});
+
 	return {
-		acceptAll: () => record({ choices: all(true), decidedAt: now() }),
+		acceptAll: () =>
+			record({
+				choices: all(true),
+				decidedAt: now(),
+				provenance: provenance('accept-all')
+			}),
 		/** Merges a decision loaded from the visitor's account. Applied only
 		 *  when it is newer than the local one; returns whether it was. */
 		applyRemote: (decision: ConsentDecision<Category>) => {
@@ -214,7 +257,8 @@ export const createConsentStore = <Category extends string>({
 			if (decision.decidedAt <= local) return false;
 			record({
 				choices: { ...state.choices, ...pickChoices(decision.choices) },
-				decidedAt: decision.decidedAt
+				decidedAt: decision.decidedAt,
+				provenance: decision.provenance
 			});
 
 			return true;
@@ -234,7 +278,8 @@ export const createConsentStore = <Category extends string>({
 		decide: (choices: Partial<ConsentChoices<Category>>) =>
 			record({
 				choices: { ...state.choices, ...pickChoices(choices) },
-				decidedAt: now()
+				decidedAt: now(),
+				provenance: provenance('custom')
 			}),
 		/** Hides the opt-out notice without recording a decision. */
 		dismissNotice: () => {
@@ -243,7 +288,12 @@ export const createConsentStore = <Category extends string>({
 			emit();
 		},
 		getState: () => state,
-		rejectAll: () => record({ choices: all(false), decidedAt: now() }),
+		rejectAll: () =>
+			record({
+				choices: all(false),
+				decidedAt: now(),
+				provenance: provenance('reject-all')
+			}),
 		setGpc: (value: boolean) => {
 			currentGpc = value;
 			emit();
